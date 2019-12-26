@@ -1,13 +1,13 @@
 package com.in28minutes.restufulwebservices.user;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,17 +25,16 @@ public class UserController {
 	public UserDaoService userDao;
 	
 	@RequestMapping(path = "/users/{id}", method = RequestMethod.GET)
-	public EntityModel<User> retrieveUserById(@PathVariable Integer id) {
+	public Resource<User> retrieveUserById(@PathVariable Integer id) {
 		User user = userDao.findById(id);
 		if(user == null) {
 			throw new UserNotFoundException("id-" + id);
 		}
 		
-		EntityModel<User> model = new EntityModel<>(user);
-		WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllUsers());
-		model.add(linkTo.withRel("all-users"));
-		
-		return model;
+		Resource<User> resource = new Resource<User>(user);
+		ControllerLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		resource.add(linkTo.withRel("all-users"));
+		return resource;
 	}
 	
 	@DeleteMapping(path = "/users/{id}")
